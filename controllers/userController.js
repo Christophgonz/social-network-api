@@ -2,7 +2,7 @@ const { ObjectId } = require("mongoose").Types;
 const { User, Thought } = require("../models");
 
 module.exports = {
-  // /api/users
+  // get /api/users
   async getUsers(req, res) {
     try {
       const users = await User.find();
@@ -11,7 +11,7 @@ module.exports = {
       return res.status(500).json(error);
     }
   },
-  // /api/users/:userId
+  // get /api/users/:userId
   async getOneUser(req, res) {
     try {
       const user = await User.findOne({ _id: req.params.userId });
@@ -28,7 +28,10 @@ module.exports = {
     }
   },
 
-  // /api/users
+  // put /api/users/:userId
+  async updateUser(req, res) {},
+
+  // post /api/users
   async createUser(req, res) {
     try {
       const user = await User.create(req.body);
@@ -38,7 +41,7 @@ module.exports = {
     }
   },
 
-  // /api/users/:userId
+  // delete /api/users/:userId
   async deleteUser(req, res) {
     try {
       const user = await User.findOneAndRemove({ _id: req.params.userId });
@@ -53,7 +56,7 @@ module.exports = {
       return res.status(500).json(error);
     }
   },
-  // /api/users/:userId/friends/:friendId
+  // post /api/users/:userId/friends/:friendId
   async addFriend(req, res) {
     try {
       const user = await User.findOne({ _id: req.params.userId });
@@ -62,7 +65,7 @@ module.exports = {
       return res.status(500).json(error);
     }
   },
-  // /api/users/:userId/friends/:friendId
+  // delete /api/users/:userId/friends/:friendId
   async removeFriend(req, res) {
     try {
       const user = await User.findOne({ _id: req.params.userId });
