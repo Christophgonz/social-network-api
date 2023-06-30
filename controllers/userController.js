@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongoose").Types;
-const { User, Thought } = require("../models");
+const User = require("../models/User");
 
 module.exports = {
   // get /api/users
@@ -29,7 +29,18 @@ module.exports = {
   },
 
   // put /api/users/:userId
-  async updateUser(req, res) {},
+  async updateUser(req, res) {
+    try {
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $set: req.body },
+        { runValidators: true, new: true }
+      );
+      res.json(user);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 
   // post /api/users
   async createUser(req, res) {
