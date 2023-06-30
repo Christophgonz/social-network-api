@@ -1,4 +1,3 @@
-const { ObjectId } = require("mongoose").Types;
 const User = require("../models/User");
 
 module.exports = {
@@ -72,6 +71,31 @@ module.exports = {
     try {
       const user = await User.findOne({ _id: req.params.userId });
       const friend = await User.findOne({ _id: req.params.friendId });
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "No user with that ID was found" });
+      }
+      if (!friend) {
+        return res
+          .status(404)
+          .json({ message: "No friend with that ID was found" });
+      }
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "No user with that ID was found" });
+      }
+      if (!friend) {
+        return res
+          .status(404)
+          .json({ message: "No friend with that ID was found" });
+      }
+      const added = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $addToSet: { friends: req.body.friendId } },
+        { runValidators: true, new: true }
+      );
     } catch (error) {
       return res.status(500).json(error);
     }
@@ -81,6 +105,21 @@ module.exports = {
     try {
       const user = await User.findOne({ _id: req.params.userId });
       const friend = await User.findOne({ _id: req.params.friendId });
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "No user with that ID was found" });
+      }
+      if (!friend) {
+        return res
+          .status(404)
+          .json({ message: "No friend with that ID was found" });
+      }
+      const removed = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { friends: req.body.friendId } },
+        { runValidators: true, new: true }
+      );
     } catch (error) {
       return res.status(500).json(error);
     }

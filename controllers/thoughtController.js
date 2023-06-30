@@ -1,5 +1,5 @@
-const { ObjectId } = require("mongoose").Types;
 const Thought = require("../models/Thought");
+const User = require("../models/User");
 
 module.exports = {
   // get /api/thoughts
@@ -59,6 +59,16 @@ module.exports = {
           .status(404)
           .json({ message: "No thought with that ID was found" });
       }
+      const user = await User.findOneAndUpdate(
+        { thoughts: req.params.thoughtId },
+        { $pull: { thoughts: req.params.thoughtId } },
+        { new: true }
+      );
+      if (!user) {
+        return res.status(404).json({
+          message: "Thought deleted but no user with that ID was found",
+        });
+      }
       res.status(200).json(thought);
     } catch (error) {
       return res.status(500).json(error);
@@ -67,7 +77,17 @@ module.exports = {
   // post /api/thoughts/:thoughtId/reactions
   async createReaction(req, res) {
     try {
-      const thought = await Thought.findOne({ _id: req.params.thoughtId });
+      const thought = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $addToSet: { reactions: req.body } },
+        { runValidators: true, new: true }
+      );
+      if (!thought) {
+        return res
+          .status(404)
+          .json({ message: "No thought with that ID was found" });
+      }
+      res.status(200).json(thought);
     } catch (error) {
       return res.status(500).json(error);
     }
@@ -75,7 +95,17 @@ module.exports = {
   // delete /api/thoughts/:thoughtId/reactions/:reactionId
   async deleteReaction(req, res) {
     try {
-      const thought = await Thought.findOne({ _id: req.params.thoughtId });
+      const thought = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $pull: { reactions: { reactionId: req.params.reactionId } } },
+        { runValidators: true, new: true }
+      );
+      if (!thought) {
+        return res
+          .status(404)
+          .json({ message: "No thought with that ID was found" });
+      }
+      res.status(200).json(thought);
     } catch (error) {
       return res.status(500).json(error);
     }
