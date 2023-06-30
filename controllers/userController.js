@@ -4,7 +4,10 @@ module.exports = {
   // get /api/users
   async getUsers(req, res) {
     try {
-      const users = await User.find();
+      const users = await User.find().populate({
+        path: "thoughts",
+        select: "-__v",
+      });
       res.status(200).json(users);
     } catch (error) {
       return res.status(500).json(error);
@@ -13,7 +16,10 @@ module.exports = {
   // get /api/users/:userId
   async getOneUser(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId });
+      const user = await User.findOne({ _id: req.params.userId }).populate({
+        path: "thoughts",
+        select: "-__v",
+      });
 
       if (!user) {
         return res
@@ -71,12 +77,12 @@ module.exports = {
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $addToSet: { friends: req.body.friendId } },
+        { $addToSet: { friends: req.params.friendId } },
         { runValidators: true, new: true }
       );
       const friend = await User.findOneAndUpdate(
         { _id: req.params.friendId },
-        { $addToSet: { friends: req.body.userId } },
+        { $addToSet: { friends: req.params.userId } },
         { runValidators: true, new: true }
       );
       if (!user) {
@@ -89,6 +95,7 @@ module.exports = {
           .status(404)
           .json({ message: "No friend with that ID was found" });
       }
+      res.status(200).json({ message: "Friend Added" });
     } catch (error) {
       return res.status(500).json(error);
     }
@@ -98,12 +105,12 @@ module.exports = {
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $pull: { friends: req.body.friendId } },
+        { $pull: { friends: req.params.friendId } },
         { runValidators: true, new: true }
       );
       const friend = await User.findOneAndUpdate(
         { _id: req.params.friendId },
-        { $pull: { friends: req.body.userId } },
+        { $pull: { friends: req.params.userId } },
         { runValidators: true, new: true }
       );
       if (!user) {
@@ -116,6 +123,8 @@ module.exports = {
           .status(404)
           .json({ message: "No friend with that ID was found" });
       }
+
+      res.status(200).json({ message: "Friend Removed :(" });
     } catch (error) {
       return res.status(500).json(error);
     }
