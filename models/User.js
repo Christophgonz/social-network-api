@@ -12,6 +12,11 @@ const userSchema = new Schema(
       type: String,
       unique: true,
       required: true,
+      validate: [
+        function (e) {
+          return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(e);
+        },
+      ],
     },
     thoughts: [
       {
