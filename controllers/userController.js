@@ -69,33 +69,26 @@ module.exports = {
   // post /api/users/:userId/friends/:friendId
   async addFriend(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId });
-      const friend = await User.findOne({ _id: req.params.friendId });
-      if (!user) {
-        return res
-          .status(404)
-          .json({ message: "No user with that ID was found" });
-      }
-      if (!friend) {
-        return res
-          .status(404)
-          .json({ message: "No friend with that ID was found" });
-      }
-      if (!user) {
-        return res
-          .status(404)
-          .json({ message: "No user with that ID was found" });
-      }
-      if (!friend) {
-        return res
-          .status(404)
-          .json({ message: "No friend with that ID was found" });
-      }
-      const added = await User.findOneAndUpdate(
+      const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
         { $addToSet: { friends: req.body.friendId } },
         { runValidators: true, new: true }
       );
+      const friend = await User.findOneAndUpdate(
+        { _id: req.params.friendId },
+        { $addToSet: { friends: req.body.userId } },
+        { runValidators: true, new: true }
+      );
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "No user with that ID was found" });
+      }
+      if (!friend) {
+        return res
+          .status(404)
+          .json({ message: "No friend with that ID was found" });
+      }
     } catch (error) {
       return res.status(500).json(error);
     }
@@ -103,8 +96,16 @@ module.exports = {
   // delete /api/users/:userId/friends/:friendId
   async removeFriend(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId });
-      const friend = await User.findOne({ _id: req.params.friendId });
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { friends: req.body.friendId } },
+        { runValidators: true, new: true }
+      );
+      const friend = await User.findOneAndUpdate(
+        { _id: req.params.friendId },
+        { $pull: { friends: req.body.userId } },
+        { runValidators: true, new: true }
+      );
       if (!user) {
         return res
           .status(404)
@@ -115,11 +116,6 @@ module.exports = {
           .status(404)
           .json({ message: "No friend with that ID was found" });
       }
-      const removed = await User.findOneAndUpdate(
-        { _id: req.params.userId },
-        { $pull: { friends: req.body.friendId } },
-        { runValidators: true, new: true }
-      );
     } catch (error) {
       return res.status(500).json(error);
     }
